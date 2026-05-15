@@ -1,0 +1,982 @@
+# VerifiAI - Fake News Detection System
+
+![Project Status](https://img.shields.io/badge/status-active-success)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Node Version](https://img.shields.io/badge/node-v14%2B-green)
+![Python Version](https://img.shields.io/badge/python-3.x-blue)
+
+A comprehensive **Full-Stack Fake News Detection System** that combines machine learning, AI-powered analysis, and real-time API verification to identify and authenticate news articles.
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation & Setup](#installation--setup)
+- [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
+- [Usage Guide](#usage-guide)
+- [Database Design](#database-design)
+- [Architecture](#architecture)
+- [Security Features](#security-features)
+- [Performance Metrics](#performance-metrics)
+- [Future Enhancements](#future-enhancements)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+
+---
+
+## ✨ Features
+
+### 🔍 Core Features
+
+- **Multi-Layer Verification System**
+  - ML-powered Fake/Real classification using Logistic Regression
+  - AI-generated summaries using Gemini API
+  - Real-time verification via NewsAPI
+  - Combined credibility scoring (0-100 scale)
+
+- **Google OAuth 2.0 Authentication**
+  - Secure login via Google Identity Services
+  - JWT token-based sessions (24-hour expiration)
+  - HTTP-only secure cookies (XSS protection)
+  - User profile management
+
+- **Guest Access with Limits**
+  - 3 free analyses per session
+  - No account required
+  - localStorage-based tracking
+  - Encourages registration for unlimited access
+
+- **Analysis Caching**
+  - Instant results for repeated queries
+  - Reduced API costs
+  - Cache indicators on UI
+  - Configurable cache strategy
+
+- **Comprehensive History & Analytics**
+  - User-specific analysis history
+  - Analytics dashboard with metrics:
+    - Total analyses
+    - Fake vs. Real count
+    - Average credibility scores
+  - Pagination support (8 items per page)
+  - Guest history via localStorage
+
+- **Advanced Credibility Assessment**
+  - 0-100 scale credibility score
+  - Risk level indicators (Low/Moderate/High)
+  - Manipulation risk assessment
+  - Category-based analysis (Politics, Health, Science, Economy, Other)
+  - Confidence percentages
+
+- **Responsive Design**
+  - Mobile-first responsive layout
+  - Dark mode support
+  - Glass morphism UI components
+  - Tailwind CSS styling
+  - Accessibility considerations
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+| Technology | Purpose |
+|---|---|
+| **HTML5** | Semantic markup |
+| **CSS3 + Tailwind CSS** | Utility-first styling |
+| **JavaScript (ES6+)** | Vanilla JS (no frameworks) |
+| **Google Identity Services** | OAuth 2.0 authentication |
+| **Fetch API** | HTTP requests |
+
+### Backend
+| Technology | Version | Purpose |
+|---|---|---|
+| **Node.js** | v14+ | Runtime environment |
+| **Express.js** | v4.19.2 | Web framework |
+| **MySQL2** | v3.9.7 | Database driver |
+| **JWT** | v9.0.3 | Token authentication |
+| **Axios** | v1.6.8 | HTTP client |
+| **Node Cron** | v4.2.1 | Task scheduling |
+| **CORS** | v2.8.5 | Cross-origin support |
+| **Cookie-Parser** | v1.4.7 | Cookie handling |
+| **Dotenv** | v16.4.5 | Environment variables |
+
+### Machine Learning
+| Technology | Purpose |
+|---|---|
+| **Python 3.x** | ML language |
+| **Flask** | Web framework |
+| **Scikit-learn** | ML algorithms |
+| **TF-IDF Vectorizer** | Text feature extraction |
+| **Logistic Regression** | Binary classification |
+| **Pandas** | Data manipulation |
+| **NLTK** | NLP preprocessing |
+| **Joblib** | Model serialization |
+
+### Database
+| Technology | Purpose |
+|---|---|
+| **MySQL/MariaDB** | Relational database |
+| **XAMPP** | Local development environment |
+
+### External APIs
+| API | Purpose |
+|---|---|
+| **Gemini API** | AI analysis & summarization |
+| **NewsAPI** | Real-time news verification |
+| **Google OAuth 2.0** | User authentication |
+
+---
+
+## 📁 Project Structure
+
+```
+fake_new_app/
+│
+├── backend/                          # Node.js/Express Backend
+│   ├── server.js                     # Main server file (9 modules)
+│   ├── package.json                  # Node dependencies
+│   ├── config/
+│   │   └── db.js                     # MySQL connection pool
+│   ├── models.txt                    # Available Gemini models
+│   ├── setup_auth_tables.js          # SQL setup scripts
+│   ├── setup_history_user.js         # History table setup
+│   └── add_*.js                      # Database migration scripts
+│
+├── frontend/                         # Frontend (HTML/CSS/JS)
+│   ├── index.html                    # Homepage
+│   ├── history.html                  # History & Analytics page
+│   ├── css/
+│   │   └── style.css                 # Tailwind CSS styling
+│   └── js/
+│       ├── app.js                    # Main app logic
+│       └── history.js                # History page logic
+│
+├── ml_service/                       # Python ML Service
+│   ├── app.py                        # Flask ML service
+│   ├── train.py                      # Model training script
+│   ├── requirements.txt               # Python dependencies
+│   ├── dataset/
+│   │   └── sample_news.csv          # Training dataset
+│   └── models/
+│       ├── model.pkl                 # Logistic Regression model
+│       └── vectorizer.pkl            # TF-IDF Vectorizer
+│
+├── database.sql                      # Database schema
+├── fake_news_db.sql                  # Complete database dump
+├── DOCUMENTATION.md                  # Comprehensive documentation
+└── README.md                         # This file
+```
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have installed:
+
+- **Node.js** v14 or higher ([Download](https://nodejs.org))
+- **Python** 3.x ([Download](https://www.python.org))
+- **MySQL/MariaDB** (via XAMPP recommended - [Download](https://www.apachefriends.org))
+- **Git** ([Download](https://git-scm.com))
+- **Code Editor** (VS Code recommended)
+
+### Required API Keys
+
+1. **Gemini API Key** - [Get it here](https://aistudio.google.com/app/apikey)
+2. **NewsAPI Key** - [Get it here](https://newsapi.org)
+3. **Google OAuth Client ID** - [Get it here](https://console.cloud.google.com)
+
+---
+
+## ⚙️ Installation & Setup
+
+### Step 1: Clone/Setup Project
+
+```bash
+# Navigate to project directory
+cd fake_new_app
+```
+
+### Step 2: Backend Setup
+
+```bash
+# Navigate to backend
+cd backend
+
+# Install Node dependencies
+npm install
+
+# Create .env file
+cat > .env << EOF
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=fake_news_db
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+
+# JWT Authentication
+JWT_SECRET=your_jwt_secret_key
+
+# External APIs
+GEMINI_API_KEY=your_gemini_api_key
+NEWS_API_KEY=your_news_api_key
+EOF
+```
+
+**Environment Variables Explanation:**
+
+| Variable | Description |
+|---|---|
+| `PORT` | Backend server port (default: 5000) |
+| `DB_HOST` | MySQL host address |
+| `DB_USER` | MySQL username |
+| `DB_PASSWORD` | MySQL password |
+| `DB_NAME` | Database name |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID |
+| `JWT_SECRET` | Secret key for JWT signing |
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `NEWS_API_KEY` | NewsAPI key |
+
+### Step 3: Database Setup
+
+#### Option A: Using XAMPP (Recommended)
+
+1. Start XAMPP Control Panel
+2. Click "Start" for Apache and MySQL
+3. Open browser: `http://localhost/phpmyadmin`
+4. Create new database: `fake_news_db`
+5. Go to Import tab
+6. Select `fake_news_db.sql` file
+7. Click Import
+
+#### Option B: Command Line
+
+```bash
+# Import database
+mysql -u root < fake_news_db.sql
+
+# Or with password
+mysql -u root -p < fake_news_db.sql
+```
+
+#### Verify Connection
+
+```bash
+# Test database connection
+node config/db.js
+# Expected output: "Successfully connected to XAMPP MySQL database"
+```
+
+### Step 4: ML Service Setup
+
+```bash
+# Navigate to ml_service
+cd ../ml_service
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Train the ML model (generates model.pkl and vectorizer.pkl)
+python train.py
+
+# Start Flask ML service
+python app.py
+# Service runs on: http://localhost:5001
+```
+
+**requirements.txt contents:**
+```
+Flask
+flask-cors
+python-dotenv
+scikit-learn
+pandas
+nltk
+joblib
+```
+
+### Step 5: Start Backend
+
+```bash
+# From backend directory
+cd ../backend
+
+# Start with auto-reload (development)
+npm run dev
+
+# Or production mode
+npm start
+# Backend runs on: http://localhost:5000
+```
+
+### Step 6: Access Frontend
+
+Open your browser and navigate to:
+```
+http://localhost:5000
+```
+
+---
+
+## 🚀 Getting Started
+
+### Complete Startup Sequence
+
+**Terminal 1: Start ML Service**
+```bash
+cd ml_service
+python app.py
+```
+
+**Terminal 2: Start Backend Server**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 3: Access Application**
+```
+Open browser: http://localhost:5000
+```
+
+### Quick Test
+
+```bash
+# Test backend health
+curl http://localhost:5000/health
+
+# Test ML service health
+curl http://localhost:5001/health
+
+# Test news analysis
+curl -X POST http://localhost:5000/api/check-news \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Breaking news about latest events"}'
+```
+
+---
+
+## 📡 API Documentation
+
+### Base URL
+```
+http://localhost:5000
+```
+
+### Authentication Endpoints
+
+#### 1. Google OAuth Authentication
+```http
+POST /api/auth/google
+Content-Type: application/json
+
+{
+  "credential": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjI3YTdmMzU1ZGI..."
+}
+```
+
+**Response (200):**
+```json
+{
+  "status": "success",
+  "message": "Authentication successful",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "profile_picture": "https://lh3.googleusercontent.com/..."
+  }
+}
+```
+
+#### 2. Get Current User
+```http
+GET /api/auth/me
+Cookie: token=<jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "status": "success",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+#### 3. Logout
+```http
+POST /api/auth/logout
+```
+
+### News Analysis Endpoints
+
+#### 4. Check News (Main Analysis)
+```http
+POST /api/check-news
+Content-Type: application/json
+
+{
+  "text": "Iran President apologises for strikes on neighbours"
+}
+```
+
+**Response (200):**
+```json
+{
+  "status": "success",
+  "data": {
+    "prediction": "Fake",
+    "confidence": 0.95,
+    "api_verification": "Low Credibility (No Trusted Sources Found)",
+    "ai_summary": "The claim that Iran's President has apologized...",
+    "credibility_score": 50,
+    "matched_sources": [],
+    "category": "Politics",
+    "manipulation_risk": "HIGH",
+    "is_cached": false
+  }
+}
+```
+
+**Analysis Pipeline:**
+1. ML Prediction (TF-IDF + Logistic Regression)
+2. AI Summary (Gemini API)
+3. Credibility Verification (NewsAPI)
+4. Risk Assessment
+5. Score Calculation
+
+### History Endpoints
+
+#### 5. Get User History
+```http
+GET /api/history
+Cookie: token=<jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "id": 23,
+      "news_text": "Iran President apologises...",
+      "prediction": "Fake",
+      "confidence": 0.95,
+      "credibility_score": 50,
+      "category": "Politics",
+      "created_at": "2026-03-07T08:58:31.000Z"
+    }
+  ],
+  "analytics": {
+    "total_claims": 31,
+    "fake_news": 15,
+    "real_news": 16,
+    "avg_credibility": 68
+  }
+}
+```
+
+#### 6. Get Guest History
+```http
+POST /api/history/guest
+Content-Type: application/json
+
+{
+  "ids": [23, 24, 25, 26]
+}
+```
+
+### Health Check Endpoints
+
+#### 7. Backend Health
+```http
+GET /health
+```
+
+#### 8. ML Service Health
+```http
+GET http://localhost:5001/health
+```
+
+---
+
+## 📖 Usage Guide
+
+### For End Users
+
+#### 1. First-Time Users (Guest)
+- Navigate to `http://localhost:5000`
+- Enter news headline or article text
+- Click "Analyze News"
+- View detailed analysis results
+- **Limit**: 3 free analyses per session
+
+#### 2. Registered Users
+- Click "Sign In with Google"
+- Authenticate with your Google account
+- Enjoy **unlimited** analyses
+- Access personal analysis history
+- View analytics dashboard
+
+#### 3. Analyzing News
+
+**Step-by-step:**
+1. Enter news text in the input field
+2. Click "Analyze News" button
+3. Wait for analysis (2-5 seconds typical)
+4. Review results:
+   - **Prediction Badge**: LIKELY FAKE / LIKELY REAL
+   - **Confidence**: Percentage confidence (0-100%)
+   - **Credibility Score**: 0-100 scale
+   - **Category**: Politics, Health, Science, Economy, Other
+   - **Risk Level**: Low, Moderate, High
+   - **AI Summary**: Detailed analysis explanation
+   - **Matched Sources**: Related news articles
+
+#### 4. Viewing History
+- Click "History" in navigation
+- View all past analyses
+- See analytics dashboard with metrics
+- Click on item for detailed view
+- Copy results to clipboard
+
+### For Developers
+
+#### Testing Endpoints
+
+**Using cURL:**
+```bash
+# Test news analysis
+curl -X POST http://localhost:5000/api/check-news \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Test news article text here"}'
+
+# Test ML prediction
+curl -X POST http://localhost:5001/predict \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Test article"}'
+```
+
+**Using Postman:**
+1. Import endpoints from API documentation
+2. Set up environment variables for API keys
+3. Test authentication flow
+4. Test all endpoints
+
+#### Debug Mode
+
+```bash
+# Enable debug logging
+NODE_ENV=development npm run dev
+
+# Check ML service logs
+python app.py --debug
+```
+
+---
+
+## 🗄️ Database Design
+
+### Database Name
+```
+fake_news_db
+```
+
+### Main Table: `news_checks`
+
+| Column | Type | Constraint | Purpose |
+|---|---|---|---|
+| `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| `news_text` | TEXT | NOT NULL | Original news text |
+| `prediction` | ENUM('Fake', 'Real') | DEFAULT NULL | ML prediction |
+| `confidence` | FLOAT | DEFAULT NULL | Confidence score (0-1) |
+| `api_verification` | VARCHAR(255) | DEFAULT 'Pending' | Credibility status |
+| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Creation time |
+| `ai_summary` | TEXT | DEFAULT NULL | AI-generated summary |
+| `credibility_score` | INT | DEFAULT 50 | Overall score (0-100) |
+| `claim_category` | VARCHAR(50) | DEFAULT 'Other' | Category label |
+
+### Indexes
+```sql
+PRIMARY KEY: id (auto-increment)
+INDEX: idx_news_text (255 char prefix for searching)
+```
+
+### Sample Data Categories
+- Political news
+- Health claims
+- Science & Technology
+- Economic news
+- Space exploration
+
+---
+
+## 🏗️ Architecture
+
+### System Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────┐
+│         FRONTEND LAYER (HTML/CSS/JS)            │
+│  - News Input & Analysis                        │
+│  - History & Analytics                          │
+│  - Google Sign-In                               │
+└────────────────────┬────────────────────────────┘
+                     │ (HTTP/REST API)
+┌────────────────────▼────────────────────────────┐
+│      BACKEND LAYER (Express.js) - Port 5000     │
+│  - Authentication (JWT + OAuth)                 │
+│  - News Analysis Module                         │
+│  - Cache Management                             │
+│  - History & Analytics                          │
+│  - External API Integration                     │
+└────────┬───────────────────┬────────────────────┘
+         │                   │
+    ┌────▼────┐      ┌───────▼──────┐
+    │ MySQL   │      │ Flask ML     │
+    │ Database│      │ Service      │
+    │         │      │ (Port 5001)  │
+    └─────────┘      └──────────────┘
+         │
+    ┌────▼──────────────────────┬─────────────────┐
+    │                            │                 │
+┌───▼──────┐          ┌──────────▼──┐    ┌────────▼──┐
+│ Gemini   │          │  NewsAPI    │    │ Google    │
+│ API      │          │ (Verification)  │ OAuth 2.0 │
+└──────────┘          └─────────────┘    └──────────┘
+```
+
+### Data Flow
+
+```
+User Input (News Text)
+    ↓
+Frontend Validation
+    ↓
+Express Backend Receives Request
+    ├── Check Cache (return if exists)
+    ├── Call ML Service (Classification)
+    ├── Call Gemini AI (Summary + Analysis)
+    ├── Call NewsAPI (Verification)
+    └── Calculate Final Score
+    ↓
+Database Storage (Log Analysis)
+    ↓
+Response to Frontend
+    ↓
+UI Rendering (Results Display)
+```
+
+---
+
+## 🔒 Security Features
+
+### Authentication & Authorization
+
+- **Google OAuth 2.0**: Secure third-party authentication
+- **JWT Tokens**: 24-hour expiration with secure signing
+- **HTTP-Only Cookies**: XSS protection
+- **Secure Flag**: HTTPS-only in production
+- **SameSite=strict**: CSRF protection
+
+### Data Protection
+
+- **Input Validation**: Required field checks, type validation
+- **SQL Injection Prevention**: Parameterized queries (mysql2)
+- **No Password Storage**: Delegated to Google
+- **CORS Configuration**: Configurable origins
+- **Environment Variables**: Secure API key management
+
+### Best Practices
+
+```javascript
+// Cookie security example
+res.cookie('token', token, {
+  httpOnly: true,      // Prevents XSS
+  secure: production,  // HTTPS only in production
+  maxAge: 24h,        // 24-hour expiration
+  sameSite: 'strict'  // CSRF prevention
+});
+```
+
+---
+
+## ⚡ Performance Metrics
+
+### Response Times
+
+| Operation | Time |
+|---|---|
+| Guest limit check | < 10ms |
+| Cache lookup | < 50ms |
+| ML prediction | 100-500ms |
+| AI summary generation | 1-3 seconds |
+| API verification | 1-2 seconds |
+| **Total end-to-end** | **2-5 seconds** |
+
+### Database Performance
+
+- Indexed queries for fast retrieval
+- Connection pooling (max 10 connections)
+- Optimized for read-heavy operations
+- Prefix indexes on text fields
+
+### Optimization Strategies
+
+- **Caching**: Reduced repeated API calls
+- **Connection Pooling**: Efficient database usage
+- **Async Operations**: Non-blocking I/O
+- **Lazy Loading**: On-demand component loading
+
+---
+
+## 🚧 Future Enhancements
+
+### Short-term (1-2 months)
+- [ ] Advanced analytics dashboard with graphs
+- [ ] PDF/CSV export of analysis history
+- [ ] Dark mode toggle switch
+- [ ] Image analysis (deepfake detection)
+- [ ] API rate limiting middleware
+- [ ] Email notifications
+
+### Medium-term (2-6 months)
+- [ ] Browser extension for quick verification
+- [ ] Mobile app (iOS/Android)
+- [ ] Advanced ML models (LSTM/Transformer)
+- [ ] Social media integration (Twitter, Facebook)
+- [ ] Multi-language support
+- [ ] Community voting system
+- [ ] Redis implementation for caching
+
+### Long-term (6+ months)
+- [ ] Real-time news feed analysis
+- [ ] Subscription plans with premium features
+- [ ] Public API for developers
+- [ ] Blockchain verification
+- [ ] Named entity recognition (NER)
+- [ ] Advanced sentiment analysis
+- [ ] Source tracking and tracing
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues & Solutions
+
+#### 1. ML Service Not Loading Models
+```bash
+# Solution: Train the model
+cd ml_service
+python train.py
+```
+
+#### 2. Database Connection Error
+```
+Error: Cannot connect to database
+```
+**Solution:**
+- Ensure MySQL is running
+- Check credentials in `.env`
+- Verify database name exists
+- Test connection: `node config/db.js`
+
+#### 3. CORS Errors
+```
+Error: Cross-Origin Request Blocked
+```
+**Solution:**
+- Check CORS configuration in `server.js`
+- Verify frontend and backend URLs match
+- Update CORS origins for production
+
+#### 4. API Key Errors
+```
+Error: Invalid API key
+```
+**Solution:**
+- Verify `.env` file has correct keys
+- Check API key permissions
+- Regenerate keys if needed
+- Restart backend service
+
+#### 5. Authentication Fails
+```
+Error: Authentication failed
+```
+**Solution:**
+- Verify Google Client ID is correct
+- Check OAuth consent screen settings
+- Clear browser cookies/cache
+- Test with different Google account
+
+#### 6. Port Already in Use
+```bash
+# Kill process using port 5000
+# Windows
+netstat -ano | findstr :5000
+taskkill /PID <PID> /F
+
+# Linux/Mac
+lsof -i :5000
+kill -9 <PID>
+```
+
+#### 7. Python Dependencies Issues
+```bash
+# Solution: Reinstall dependencies
+pip install --upgrade pip
+pip install -r requirements.txt --force-reinstall
+```
+
+---
+
+## 📚 Additional Resources
+
+### Documentation Files
+- [DOCUMENTATION.md](./DOCUMENTATION.md) - Comprehensive project documentation
+- [database.sql](./database.sql) - Database schema
+- [fake_news_db.sql](./fake_news_db.sql) - Complete database dump
+
+### External Resources
+- [Node.js Docs](https://nodejs.org/docs)
+- [Express.js Guide](https://expressjs.com)
+- [Python Docs](https://docs.python.org)
+- [Flask Documentation](https://flask.palletsprojects.com)
+- [MySQL Reference](https://dev.mysql.com/doc)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+
+### API Documentation
+- [Gemini API](https://ai.google.dev)
+- [NewsAPI](https://newsapi.org/docs)
+- [Google OAuth 2.0](https://developers.google.com/identity)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Code Style
+- Use consistent indentation (2 spaces for JS, 4 for Python)
+- Follow existing code conventions
+- Add comments for complex logic
+- Write descriptive commit messages
+
+### Testing
+- Test all API endpoints before submitting PR
+- Verify database migrations
+- Check ML model accuracy
+- Test on multiple browsers (if frontend changes)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 👥 Support & Contact
+
+For issues, questions, or suggestions:
+
+- **Issues**: Create an issue on the project repository
+- **Documentation**: See [DOCUMENTATION.md](./DOCUMENTATION.md)
+- **Email**: Contact the development team
+
+---
+
+## 📝 Changelog
+
+### Version 1.0 (May 2026)
+- Initial release
+- Core fake news detection functionality
+- Google OAuth integration
+- ML-powered classification
+- AI-generated summaries
+- Real-time API verification
+- History tracking and analytics
+- Responsive UI with dark mode
+
+---
+
+## 🎯 Quick Reference
+
+### Command Cheatsheet
+
+```bash
+# ML Service
+cd ml_service
+python train.py          # Train model
+python app.py            # Start service
+
+# Backend
+cd backend
+npm install             # Install dependencies
+npm run dev             # Development mode
+npm start               # Production mode
+
+# Database
+mysql -u root < fake_news_db.sql    # Import database
+mysql -u root                        # Access MySQL CLI
+
+# Testing
+curl http://localhost:5000/health   # Backend health
+curl http://localhost:5001/health   # ML health
+```
+
+### Important Ports
+- **Frontend/Backend**: `http://localhost:5000`
+- **ML Service**: `http://localhost:5001`
+- **MySQL**: `localhost:3306`
+- **phpMyAdmin**: `http://localhost/phpmyadmin`
+
+---
+
+**Version**: 1.0  
+**Last Updated**: May 15, 2026  
+**Project**: VerifiAI - Fake News Detection System  
+**Status**: Active Development
+
+---
+
+## 🌟 Acknowledgments
+
+Special thanks to:
+- The open-source community
+- Scikit-learn for ML capabilities
+- Flask for the ML service framework
+- Express.js for backend framework
+- Tailwind CSS for styling
+- Google Gemini API for AI analysis
+- NewsAPI for real-time verification
+
+---
+
+**Happy Detecting! 🔍**
