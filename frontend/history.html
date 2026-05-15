@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>VerifiAI - Search History &amp; Analytics</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            safelist: [
+                'bg-red-500/10', 'border-red-500/20', 'bg-red-500/20', 'text-red-500', 'border-red-500/30', 'text-red-400',
+                'bg-green-500/10', 'border-green-500/20', 'bg-green-500/20', 'text-green-500', 'border-green-500/30', 'text-green-400',
+                'bg-yellow-500/10', 'border-yellow-500/20', 'bg-yellow-500/20', 'text-yellow-500', 'border-yellow-500/30', 'bg-yellow-500', 'bg-yellow-500/80',
+                'bg-white/5', 'hover:bg-primary/10', 'border-primary/20', 'bg-slate-500', 'text-slate-200', 'text-slate-300', 'text-slate-500', 'text-slate-600',
+                'text-background-dark', 'w-2', 'h-2', 'rounded-full', 'px-3', 'py-1', 'py-2', 'h-full', 'w-full'
+            ],
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(13, 204, 242, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(13, 204, 242, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(13, 204, 242, 0.4);
+        }
+
+        /* Modal size overrides */
+        .modal-box {
+            max-width: 45rem;
+            max-height: 42rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-body-scroll {
+            overflow-y: auto;
+            flex: 1;
+            /* Custom scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(13, 204, 242, 0.3) transparent;
+        }
+
+        .modal-body-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .modal-body-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-body-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(13, 204, 242, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+
+            <!-- HEADER -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-primary/20 px-6 lg:px-10 py-3 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-40">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-4 text-primary">
+                        <span class="material-symbols-outlined text-3xl">verified_user</span>
+                        <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">
+                            VerifiAI</h2>
+                    </div>
+                    <nav class="hidden md:flex items-center gap-9">
+                        <a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+                            href="/">Detector</a>
+                        <a class="text-primary text-sm font-bold border-b-2 border-primary pb-1"
+                            href="/history">History</a>
+                    </nav>
+                </div>
+                <div class="flex flex-1 justify-end gap-4 items-center">
+                    <label class="hidden sm:flex flex-col min-w-40 h-10 max-w-64">
+                        <div class="flex w-full flex-1 items-stretch rounded-lg h-full glass border border-primary/20">
+                            <div class="text-primary flex items-center justify-center pl-3" data-icon="search">
+                                <span class="material-symbols-outlined text-xl">search</span>
+                            </div>
+                            <input
+                                class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm font-normal pl-2"
+                                placeholder="Search records..." />
+                        </div>
+                    </label>
+                    <!-- MODULE 7: Dynamic User Navbar -->
+                    <div id="guestNav" class="hidden">
+                        <div id="g_id_onload"
+                            data-client_id="122964210066-0tihuhdjrg1bpqhtesg8imias9c260e5.apps.googleusercontent.com"
+                            data-context="signin" data-ux_mode="popup" data-callback="handleGoogleLogin"
+                            data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="filled_black"
+                            data-text="signin_with" data-size="large" data-logo_alignment="left">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 hidden">
+                        <img id="userAvatar" class="w-10 h-10 rounded-full border border-primary/30" src=""
+                            alt="Profile">
+                        <button onclick="handleLogout()"
+                            class="text-xs text-red-400 hover:text-red-300 transition-colors font-bold uppercase tracking-widest pl-4 border-l border-glass-border">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN -->
+            <main class="max-w-[1200px] mx-auto w-full p-4 lg:p-10 space-y-8">
+
+                <!-- Loading Spinner -->
+                <div id="loadingIndicatorHistory" class="flex flex-col items-center justify-center my-10 py-10">
+                    <span class="material-symbols-outlined text-primary text-6xl animate-spin">cycle</span>
+                    <p class="mt-4 text-slate-400 font-medium">Fetching history and analytics...</p>
+                </div>
+
+                <!-- No Data Message -->
+                <div id="noDataMessage" class="hidden flex flex-col items-center justify-center my-10 py-10">
+                    <span class="material-symbols-outlined text-slate-500 text-6xl mb-4">history_off</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">No History Found</h3>
+                    <p class="text-slate-400">You haven't analyzed any news articles yet. <a href="/"
+                            class="text-primary underline">Analyze one now →</a></p>
+                </div>
+
+                <!-- Analytics Dashboard (shown after data loads) -->
+                <section id="analyticsDashboard" class="hidden">
+                    <div class="flex flex-col gap-1 mb-6">
+                        <h1 class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-tight">
+                            Search History</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-base font-normal">Track and audit your
+                            previous AI fact-checking queries</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <!-- Total Checked -->
+                        <div class="flex flex-col gap-2 rounded-xl p-6 glass border-l-4 border-primary">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">
+                                    Total Checked</p>
+                                <span class="material-symbols-outlined text-primary">assessment</span>
+                            </div>
+                            <p id="statTotal" class="text-slate-900 dark:text-white text-3xl font-bold">0</p>
+                            <p class="text-primary text-xs font-semibold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">trending_up</span> All time
+                            </p>
+                        </div>
+                        <!-- Fake Detected -->
+                        <div class="flex flex-col gap-2 rounded-xl p-6 glass border-l-4 border-red-500">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">
+                                    Fake Detected</p>
+                                <span class="material-symbols-outlined text-red-500">dangerous</span>
+                            </div>
+                            <p id="statFake" class="text-slate-900 dark:text-white text-3xl font-bold">0</p>
+                            <p class="text-red-500 text-xs font-semibold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">warning</span> Identified Risk
+                            </p>
+                        </div>
+                        <!-- Real Verified -->
+                        <div class="flex flex-col gap-2 rounded-xl p-6 glass border-l-4 border-emerald-500">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">
+                                    Real Verified</p>
+                                <span class="material-symbols-outlined text-emerald-500">check_circle</span>
+                            </div>
+                            <p id="statReal" class="text-slate-900 dark:text-white text-3xl font-bold">0</p>
+                            <p class="text-emerald-500 text-xs font-semibold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">shield</span> Verified Facts
+                            </p>
+                        </div>
+                        <!-- Avg Credibility -->
+                        <div class="flex flex-col gap-2 rounded-xl p-6 glass border-l-4 border-amber-400">
+                            <div class="flex justify-between items-start">
+                                <p
+                                    class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">
+                                    Avg Credibility</p>
+                                <span class="material-symbols-outlined text-amber-400">speed</span>
+                            </div>
+                            <p id="statCred" class="text-slate-900 dark:text-white text-3xl font-bold">0 / 100</p>
+                            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 mt-2">
+                                <div class="bg-amber-400 h-1.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Table -->
+                <section id="tableContainer"
+                    class="hidden glass-card rounded-2xl overflow-hidden border border-slate-200 dark:border-primary/10">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50 dark:bg-primary/5 border-b border-slate-200 dark:border-primary/10">
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                        News Analyzed</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                        AI Verdict</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">
+                                        Confidence</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                        Cross-Ref</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                        Date</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">
+                                        Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody" class="divide-y divide-slate-100 dark:divide-primary/10">
+                                <!-- Rows injected by history.js -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="paginationControls"
+                        class="hidden flex items-center justify-between p-4 border-t border-slate-200 dark:border-primary/10">
+                        <span id="pageInfo" class="text-xs font-medium text-slate-500">Showing results...</span>
+                        <div class="flex items-center gap-2">
+                            <button id="prevBtn"
+                                class="flex items-center justify-center h-8 px-4 rounded-lg bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all font-bold text-xs uppercase tracking-widest neon-glow">
+                                <span class="material-symbols-outlined text-base">chevron_left</span> Previous
+                            </button>
+                            <div class="flex items-center" id="paginationUl">
+                                <!-- Page numbers injected by JS -->
+                            </div>
+                            <button id="nextBtn"
+                                class="flex items-center justify-center h-8 px-4 rounded-lg bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 transition-all font-bold text-xs uppercase tracking-widest neon-glow">
+                                Next <span class="material-symbols-outlined text-base">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="mt-auto py-8 px-10 border-t border-slate-200 dark:border-primary/10">
+                <div
+                    class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 text-xs">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-primary text-xl">verified_user</span>
+                        <span>© 2026 VerifiAI Deep Learning Systems</span>
+                    </div>
+                    <div class="flex gap-6">
+                        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                        <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+                        <a class="hover:text-primary transition-colors" href="#">API Docs</a>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- VIEW DETAILS MODAL -->
+    <div id="detailsModal"
+        class="hidden fixed inset-0 z-50 items-center justify-center bg-background-dark/80 backdrop-blur-sm p-4">
+        <div class="modal-box glass rounded-2xl shadow-2xl border border-primary/20 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-primary/10">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">analytics</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Detailed Verification Report</h3>
+                </div>
+                <button id="closeModalBtnTop" class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-400">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Body — scrollable when content is long -->
+            <div class="modal-body-scroll p-6 space-y-6">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass-card rounded-xl p-4 border border-primary/20">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Prediction</p>
+                        <p id="modalPrediction" class="font-black text-lg"></p>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-primary/20">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Credibility</p>
+                        <p id="modalCredibility" class="font-black text-lg"></p>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-primary/20">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Category</p>
+                        <p id="modalCategory" class="text-slate-200 font-bold text-lg"></p>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-primary/20">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Confidence</p>
+                        <p id="modalConfidence" class="text-slate-200 font-bold text-lg"></p>
+                    </div>
+                </div>
+
+                <!-- API Verification -->
+                <div class="glass-card rounded-xl p-4 border border-primary/10 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm">verified</span>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">API Cross-Reference:</p>
+                    <div id="modalApiVerify" class="flex items-center gap-2"></div>
+                </div>
+
+                <!-- Claim Text -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">text_fields</span> Analyzed Claim
+                    </h4>
+                    <div class="bg-primary/5 rounded-xl p-4 border border-primary/10">
+                        <p id="modalNewsText" class="text-slate-300 italic text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- AI Summary -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">psychology</span> AI Analysis Summary
+                    </h4>
+                    <div id="modalAiSummary"
+                        class="glass-card rounded-xl p-4 overflow-y-auto max-h-[220px] border border-primary/10 text-sm leading-relaxed text-slate-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 bg-primary/5 flex justify-end gap-3 border-t border-primary/10">
+                <button id="closeModalBtn"
+                    class="px-6 py-2 rounded-lg bg-primary text-background-dark text-sm font-bold hover:neon-glow transition-all">
+                    Close Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/history.js"></script>
+    <script>
+        async function handleGoogleLogin(response) {
+            try {
+                const res = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                if (res.ok) window.location.reload();
+            } catch (error) {
+                console.error('Network Error during login:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,167 @@
+/* Modern Global Variables */
+:root {
+    --primary-color: #0bdce7;
+    --bg-dark: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --fake-color: #ef4444;
+    --real-color: #10b981;
+    --font-main: 'Inter', sans-serif;
+}
+
+/* Global Reset & Styling */
+body {
+    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #0f172a, #020617);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    font-family: var(--font-main);
+    color: white;
+    min-height: 100vh;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Beautiful Text Gradient */
+.text-gradient {
+    background: linear-gradient(90deg, #ec407a 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+/* Navbar */
+.custom-navbar {
+    background-color: rgba(15, 23, 42, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+}
+.nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(11, 220, 231, 0.15), inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+/* Form Styling */
+.custom-input {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white !important;
+    border-radius: 0.5rem;
+    resize: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.custom-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(11, 220, 231, 0.25);
+    outline: none;
+}
+.custom-input::placeholder {
+    color: #64748b;
+}
+
+/* Buttons */
+.custom-btn {
+    background: linear-gradient(90deg, #3b82f6, #0bdce7);
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 14px 24px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+.custom-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, #0bdce7, #3b82f6);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+.custom-btn:hover::before {
+    opacity: 1;
+}
+.custom-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -3px rgba(11, 220, 231, 0.4);
+    color: white;
+}
+
+/* Results Formatting */
+.result-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    border: 4px solid transparent; /* default */
+    background: rgba(0,0,0,0.2);
+}
+
+.result-fake .result-circle {
+    border-color: var(--fake-color);
+    color: var(--fake-color);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+}
+.result-real .result-circle {
+    border-color: var(--real-color);
+    color: var(--real-color);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+}
+
+.text-fake { color: var(--fake-color) !important; }
+.text-real { color: var(--real-color) !important; }
+
+/* Micro-animations */
+.fade-in {
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.verify-box {
+    background-color: rgba(0,0,0,0.3);
+    border-left: 4px solid var(--primary-color);
+}
+
+.summary-box {
+    background-color: rgba(30,30,50,0.5);
+    border-left: 4px solid #a855f7; /* Awesome purple Gemini border styling */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* History Table Styling */
+.custom-table tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.custom-table tbody tr:hover {
+    background-color: rgba(11, 220, 231, 0.05) !important;
+}
